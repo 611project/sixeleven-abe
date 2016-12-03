@@ -47,8 +47,8 @@ COPYRIGHT_YEARS = '2016'
 COPYRIGHT = "Abe & SixEleven developers"
 COPYRIGHT_URL = 'https://github.com/fflo/sixeleven-abe'
 
-DONATIONS_BTC = '1PWC7PNHL1SgvZaN7xEtygenKjWobWsCuf'
-DONATIONS_NMC = 'NJ3MSELK1cWnqUa6xhF2wUYAnz3RSrWXcK'
+DONATIONS_BTC = '1FW1ZRHXGbJyWkvgwhoLN1pFmFXdNuJpiw'
+DONATIONS_SIL = 'N4Q5rdapS6RgZDwqLFR4PVY9f75sU2RuHJ'
 
 TIME1970 = time.strptime('1970-01-01','%Y-%m-%d')
 EPOCH1970 = calendar.timegm(TIME1970)
@@ -83,7 +83,7 @@ DEFAULT_TEMPLATE = """
         %(download)s
         Tips appreciated!
         <a href="%(dotdot)saddress/%(DONATIONS_BTC)s">BTC</a>
-        <a href="%(dotdot)saddress/%(DONATIONS_NMC)s">NMC</a>
+        <a href="%(dotdot)saddress/%(DONATIONS_SIL)s">SIL</a>
     </p>
 </body>
 </html>
@@ -2039,7 +2039,7 @@ def create_conf():
             "COPYRIGHT_YEARS": COPYRIGHT_YEARS,
             "COPYRIGHT_URL": COPYRIGHT_URL,
             "DONATIONS_BTC": DONATIONS_BTC,
-            "DONATIONS_NMC": DONATIONS_NMC,
+            "DONATIONS_SIL": DONATIONS_SIL,
             "CONTENT_TYPE": DEFAULT_CONTENT_TYPE,
             "HOMEPAGE": DEFAULT_HOMEPAGE,
             },

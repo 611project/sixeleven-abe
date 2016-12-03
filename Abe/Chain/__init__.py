@@ -47,7 +47,9 @@ SCRIPT_TYPE_ADDRESS = 3
 SCRIPT_TYPE_BURN = 4
 SCRIPT_TYPE_MULTISIG = 5
 SCRIPT_TYPE_P2SH = 6
-
+SCRIPT_TYPE_NAME_NEW = 7
+SCRIPT_TYPE_NAME_FIRSTUPDATE = 8
+SCRIPT_TYPE_NAME_UPDATE = 9
 
 class BaseChain(object):
     POLICY_ATTRS = ['magic', 'name', 'code3', 'address_version', 'decimals', 'script_addr_vers']
