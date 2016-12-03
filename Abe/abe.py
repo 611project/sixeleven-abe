@@ -39,9 +39,9 @@ import base58
 
 __version__ = version.__version__
 
-ABE_APPNAME = "Abe"
+ABE_APPNAME = "SixEleven Blockchain Explorer"
 ABE_VERSION = __version__
-ABE_URL = 'https://github.com/bitcoin-abe/bitcoin-abe'
+ABE_URL = 'https://github.com/fflo/sixeleven-abe'
 
 COPYRIGHT_YEARS = '2016'
 COPYRIGHT = "Abe & SixEleven developers"
@@ -82,8 +82,8 @@ DEFAULT_TEMPLATE = """
         </span>
         %(download)s
         Tips appreciated!
-        <a href="%(dotdot)saddress/%(DONATIONS_BTC)s">BTC</a>
-        <a href="%(dotdot)saddress/%(DONATIONS_SIL)s">SIL</a>
+        <a href="bitcoin:1FW1ZRHXGbJyWkvgwhoLN1pFmFXdNuJpiw?label=abe-sixeleven">BTC: %(DONATIONS_BTC)s</a>
+        <a href="%(dotdot)saddress/%(DONATIONS_SIL)s">SIL: %(DONATIONS_SIL)s</a>
     </p>
     </div>
     </div>
@@ -293,7 +293,8 @@ class Abe:
         return getattr(abe, 'handle_' + cmd, None)
 
     def handle_chains(abe, page):
-        page['title'] = ABE_APPNAME + ' Search'
+        # page['title'] = ABE_APPNAME + ' Search'
+        page['title'] = ABE_APPNAME
         body = page['body']
         body += [
             abe.search_form(page),
