@@ -467,22 +467,22 @@ class Abe:
             hi = int(rows[0][1])
         basename = os.path.basename(page['env']['PATH_INFO'])
 
-        nav = ['<a href="',
+        nav = ['<a class="btn btn-default btn-sm" href="',
                basename, '?count=', str(count), '">&lt;&lt;</a>']
-        nav += [' <a href="', basename, '?hi=', str(hi + count),
+        nav += [' <a class="btn btn-default btn-sm" href="', basename, '?hi=', str(hi + count),
                  '&amp;count=', str(count), '">&lt;</a>']
         nav += [' ', '&gt;']
         if hi >= count:
-            nav[-1] = ['<a href="', basename, '?hi=', str(hi - count),
+            nav[-1] = ['<a class="btn btn-default btn-sm" href="', basename, '?hi=', str(hi - count),
                         '&amp;count=', str(count), '">', nav[-1], '</a>']
         nav += [' ', '&gt;&gt;']
         if hi != count - 1:
-            nav[-1] = ['<a href="', basename, '?hi=', str(count - 1),
+            nav[-1] = ['<a class="btn btn-default btn-sm" href="', basename, '?hi=', str(count - 1),
                         '&amp;count=', str(count), '">', nav[-1], '</a>']
         for c in (20, 50, 100, 500, 2016):
             nav += [' ']
             if c != count:
-                nav += ['<a href="', basename, '?count=', str(c)]
+                nav += ['<a class="btn btn-default btn-sm" href="', basename, '?count=', str(c)]
                 if hi is not None:
                     nav += ['&amp;hi=', str(max(hi, c - 1))]
                 nav += ['">']
@@ -490,12 +490,14 @@ class Abe:
             if c != count:
                 nav += ['</a>']
 
-        nav += [' <a href="', page['dotdot'], '">Search</a>']
+        nav += [' <a class="btn btn-default btn-sm" href="', page['dotdot'], '">Search</a>']
 
         extra = False
         #extra = True
-        body += ['<p>', nav, '</p>\n',
-                 '<table><tr><th>Block</th><th>Approx. Time</th>',
+        body += ['<p><div class="input-group"><div class="input-group-btn">', 
+                     nav,
+                 '</div></div></p>\n',
+                 '<table class="table table-bordered"><tr><th>Block</th><th>Approx. Time</th>',
                  '<th>Transactions</th><th>Value Out</th>',
                  '<th>Difficulty</th><th>Outstanding</th>',
                  '<th>Average Age</th><th>Chain Age</th>',
@@ -577,7 +579,7 @@ class Abe:
         is_stake_chain = chain.has_feature('nvc_proof_of_stake')
         is_stake_block = is_stake_chain and b['is_proof_of_stake']
 
-        body += ['<p>']
+        body += ['<pre>']
         if is_stake_chain:
             body += [
                 'Proof of Stake' if is_stake_block else 'Proof of Work',
@@ -628,11 +630,11 @@ class Abe:
              ';total_ss=',b['chain_satoshi_seconds'],';destroyed=',b['satoshis_destroyed']]
             if abe.debug else '',
 
-            '</p>\n']
+            '</pre>\n']
 
         body += ['<h3>Transactions</h3>\n']
 
-        body += ['<table><tr><th>Transaction</th><th>Fee</th>'
+        body += ['<table class="table table-bordered"><tr><th>Transaction</th><th>Fee</th>'
                  '<th>Size (kB)</th><th>From (amount)</th><th>To (amount)</th>'
                  '</tr>\n']
 
@@ -736,7 +738,7 @@ class Abe:
             body += ['</tr>\n']
 
         body += abe.short_link(page, 't/' + hexb58(tx['hash'][:14]))
-        body += ['<p>Hash: ', tx['hash'], '<br />\n']
+        body += ['<pre>Hash: ', tx['hash'], '<br />\n']
         chain = None
         is_coinbase = None
 
@@ -772,7 +774,7 @@ class Abe:
                                       tx['value_in'] - tx['value_out']), chain),
             '<br />\n',
             '<a href="../rawtx/', tx['hash'], '">Raw transaction</a><br />\n']
-        body += ['</p>\n',
+        body += ['</pre>\n',
                  '<a name="inputs"><h3>Inputs</h3></a>\n<table>\n',
                  '<tr><th>Index</th><th>Previous output</th><th>Amount</th>',
                  '<th>From address</th>']
@@ -936,8 +938,8 @@ class Abe:
             '<p>Search by address, block number or hash, transaction or'
             ' public key hash, or chain name:</p>\n'
             '<form action="', page['dotdot'], 'search"><p>\n'
-            '<input name="q" size="64" value="', escape(q), '" />'
-            '<button type="submit">Search</button>\n'
+            '<input class="form-control" style="width:419px; display: inline;" name="q" size="64" value="', escape(q), '" />'
+            '<button class="form-control btn btn-default" style="width:71px; display: inline; margin-top: -3px;" type="submit">Search</button>\n'
             '<br />Address or hash search requires at least the first ',
             HASH_PREFIX_MIN, ' characters.</p></form>\n']
 
