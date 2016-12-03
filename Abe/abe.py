@@ -37,6 +37,9 @@ import deserialize
 import util  # Added functions.
 import base58
 
+# needed to show Namecoin and SixEleven NAME operations
+import Chain
+
 __version__ = version.__version__
 
 ABE_APPNAME = "SixEleven Blockchain Explorer"
