@@ -589,44 +589,44 @@ class Abe:
                 'Proof of Stake' if is_stake_block else 'Proof of Work',
                 ': ',
                 format_satoshis(b['generated'], chain), ' coins generated<br />\n']
-        body += ['Hash: ', b['hash'], '<br />\n']
+        body += ['Hash: ', b['hash'], '\n']
 
         if b['hashPrev'] is not None:
             body += ['Previous Block: <a href="', dotdotblock,
-                     b['hashPrev'], '">', b['hashPrev'], '</a><br />\n']
+                     b['hashPrev'], '">', b['hashPrev'], '</a>\n']
         if b['next_block_hashes']:
             body += ['Next Block: ']
         for hash in b['next_block_hashes']:
-            body += ['<a href="', dotdotblock, hash, '">', hash, '</a><br />\n']
+            body += ['<a href="', dotdotblock, hash, '">', hash, '</a>\n']
 
         body += [
-            ['Height: ', b['height'], '<br />\n']
+            ['Height: ', b['height'], '\n']
             if b['height'] is not None else '',
 
-            'Version: ', b['version'], '<br />\n',
-            'Transaction Merkle Root: ', b['hashMerkleRoot'], '<br />\n',
-            'Time: ', b['nTime'], ' (', format_time(b['nTime']), ')<br />\n',
+            'Version: ', b['version'], '\n',
+            'Transaction Merkle Root: ', b['hashMerkleRoot'], '\n',
+            'Time: ', b['nTime'], ' (', format_time(b['nTime']), ')\n',
             'Difficulty: ', format_difficulty(util.calculate_difficulty(b['nBits'])),
-            ' (Bits: %x)' % (b['nBits'],), '<br />\n',
+            ' (Bits: %x)' % (b['nBits'],), '\n',
 
             ['Cumulative Difficulty: ', format_difficulty(
-                    util.work_to_difficulty(b['chain_work'])), '<br />\n']
+                    util.work_to_difficulty(b['chain_work'])), '\n']
             if b['chain_work'] is not None else '',
 
-            'Nonce: ', b['nNonce'], '<br />\n',
-            'Transactions: ', len(b['transactions']), '<br />\n',
-            'Value out: ', format_satoshis(b['value_out'], chain), '<br />\n',
-            'Transaction Fees: ', format_satoshis(b['fees'], chain), '<br />\n',
+            'Nonce: ', b['nNonce'], '\n',
+            'Transactions: ', len(b['transactions']), '\n',
+            'Value out: ', format_satoshis(b['value_out'], chain), '\n',
+            'Transaction Fees: ', format_satoshis(b['fees'], chain), '\n',
 
             ['Average Coin Age: %6g' % (b['satoshi_seconds'] / 86400.0 / b['chain_satoshis'],),
-             ' days<br />\n']
+             ' days\n']
             if b['chain_satoshis'] and (b['satoshi_seconds'] is not None) else '',
 
             '' if b['satoshis_destroyed'] is None else
             ['Coin-days Destroyed: ',
-             format_satoshis(b['satoshis_destroyed'] / 86400.0, chain), '<br />\n'],
+             format_satoshis(b['satoshis_destroyed'] / 86400.0, chain), '\n'],
 
-            ['Cumulative Coin-days Destroyed: %6g%%<br />\n' %
+            ['Cumulative Coin-days Destroyed: %6g%%\n' %
              (100 * (1 - float(b['satoshi_seconds']) / b['chain_satoshi_seconds']),)]
             if b['chain_satoshi_seconds'] else '',
 
