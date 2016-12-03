@@ -715,6 +715,27 @@ def find_namecoin_addresses(store):
         store.commit()
         store.log.info("Found %d addresses", updated)
 
+def find_sixeleven_addresses(store):
+    updated = 0
+    for tx_id, txout_pos, script in store.selectall("""
+        SELECT tx_id, txout_pos, txout_scriptPubKey
+          FROM txout
+         WHERE pubkey_id IS NULL"""):
+        pubkey_id = store.script_to_pubkey_id(store.binout(script))
+        if pubkey_id is not None:
+            store.sql("""
+                UPDATE txout
+                   SET pubkey_id = ?
+                 WHERE tx_id = ?
+                   AND txout_pos = ?""", (pubkey_id, tx_id, txout_pos))
+            updated += 1
+            if updated % 1000 == 0:
+                store.commit()
+                store.log.info("Found %d addresses", updated)
+    if updated % 1000 > 0:
+        store.commit()
+        store.log.info("Found %d addresses", updated)
+
 def create_abe_lock(store):
     store.ddl("""CREATE TABLE abe_lock (
         lock_id       NUMERIC(10) NOT NULL PRIMARY KEY,
@@ -1142,6 +1163,7 @@ upgrades = [
     ('Abe23',   config_clob),            # Fast
     ('Abe24',   clear_bad_addresses),    # Fast
     ('Abe24.1', find_namecoin_addresses), # 2 minutes if you have Namecoin
+    ('Abe24.2', find_sixeleven_addresses), # 2 minutes if you have SixEleven
     ('Abe25',   create_abe_lock),        # Fast
     ('Abe25.1', create_abe_lock_row),    # Fast
     ('Abe25.2', insert_null_pubkey),     # 1 second
