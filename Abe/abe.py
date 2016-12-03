@@ -85,6 +85,9 @@ DEFAULT_TEMPLATE = """
         <a href="%(dotdot)saddress/%(DONATIONS_BTC)s">BTC</a>
         <a href="%(dotdot)saddress/%(DONATIONS_SIL)s">SIL</a>
     </p>
+    </div>
+    </div>
+    </div>
 </body>
 </html>
 """
