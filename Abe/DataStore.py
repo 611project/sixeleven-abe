@@ -1523,6 +1523,12 @@ store._ddl['txout_approx'],
                 ]
         elif script_type == Chain.SCRIPT_TYPE_BURN:
             txout['binaddr'] = NULL_PUBKEY_HASH
+        elif script_type == Chain.SCRIPT_TYPE_NAME_NEW:
+            txout['binaddr'] = data
+        elif script_type == Chain.SCRIPT_TYPE_NAME_FIRSTUPDATE:
+            txout['binaddr'] = data
+        elif script_type == Chain.SCRIPT_TYPE_NAME_UPDATE:
+            txout['binaddr'] = data
         else:
             txout['binaddr'] = None
 
