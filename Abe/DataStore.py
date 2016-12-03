@@ -2496,6 +2496,10 @@ store._ddl['txout_approx'],
         """Extract address and script type from transaction output script."""
         script_type, data = chain.parse_txout_script(script)
 
+        if script_type in (Chain.SCRIPT_TYPE_NAME_NEW, Chain.SCRIPT_TYPE_NAME_FIRSTUPDATE, Chain.SCRIPT_TYPE_NAME_UPDATE):
+            script_type = data[0][0]
+            data = data[0][1]
+
         if script_type in (Chain.SCRIPT_TYPE_ADDRESS, Chain.SCRIPT_TYPE_P2SH):
             return store.pubkey_hash_to_id(data)
 
