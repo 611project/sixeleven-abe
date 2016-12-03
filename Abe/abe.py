@@ -378,6 +378,13 @@ class Abe:
         return abe.store.get_default_chain()
 
     def format_addresses(abe, data, dotdot, chain):
+        if data["script_type"] == Chain.SCRIPT_TYPE_NAME_NEW:
+            return "OP_NAME_NEW"
+        elif data["script_type"] == Chain.SCRIPT_TYPE_NAME_FIRSTUPDATE:
+            return "OP_NAME_FIRSTUPDATE", data['binaddr']
+        elif data["script_type"] == Chain.SCRIPT_TYPE_NAME_UPDATE:
+            return "OP_NAME_UPDATE", data['binaddr']
+
         if data['binaddr'] is None:
             return 'Unknown'
         if 'subbinaddr' in data:
