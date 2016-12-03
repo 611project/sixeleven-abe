@@ -43,9 +43,9 @@ ABE_APPNAME = "Abe"
 ABE_VERSION = __version__
 ABE_URL = 'https://github.com/bitcoin-abe/bitcoin-abe'
 
-COPYRIGHT_YEARS = '2011'
-COPYRIGHT = "Abe developers"
-COPYRIGHT_URL = 'https://github.com/bitcoin-abe'
+COPYRIGHT_YEARS = '2016'
+COPYRIGHT = "Abe & SixEleven developers"
+COPYRIGHT_URL = 'https://github.com/fflo/sixeleven-abe'
 
 DONATIONS_BTC = '1PWC7PNHL1SgvZaN7xEtygenKjWobWsCuf'
 DONATIONS_NMC = 'NJ3MSELK1cWnqUa6xhF2wUYAnz3RSrWXcK'
@@ -68,8 +68,11 @@ DEFAULT_TEMPLATE = """
     <title>%(title)s</title>
 </head>
 <body>
+    <div class="container">
+    <div class="row">
+    <div class="col-lg-12">
     <h1><a href="%(dotdot)s%(HOMEPAGE)s"><img
-     src="%(dotdot)s%(STATIC_PATH)slogo32.png" alt="Abe logo" /></a> %(h1)s
+     src="%(dotdot)s%(STATIC_PATH)slogo611.png" alt="sixeleven-abe logo" /></a> %(h1)s
     </h1>
     %(body)s
     <p><a href="%(dotdot)sq">API</a> (machine-readable pages)</p>
