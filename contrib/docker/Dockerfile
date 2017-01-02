@@ -18,13 +18,13 @@ RUN apt-get -yqq install git sqlite sudo wget python-dev python-flup python-cryp
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# git clone bitcoin-abe to be a local block explorer
+# git clone sixeleven-abe to be a local block explorer
 WORKDIR /home
-RUN git clone https://github.com/fflo/bitcoin-abe sixeleven-abe
+RUN git clone https://github.com/fflo/sixeleven-abe sixeleven-abe
 
 # build bitcoin-abe, it requires a patch to be run within docker
 WORKDIR /home/sixeleven-abe
-ADD ./bitcoinabe.abe.py.patch /home/sixeleven-abe/abe.py.patch
+ADD ./sixeleven-abe.abe.py.patch /home/sixeleven-abe/abe.py.patch
 RUN patch -p1 < abe.py.patch
 RUN python setup.py install
 
