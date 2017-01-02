@@ -5,8 +5,8 @@
 # See https://github.com/phusion/baseimage-docker/blob/master/Changelog.md for
 # a list of version numbers.
 FROM phusion/baseimage:0.9.19
-MAINTAINER Paul Oliver <docker@paultastic.com>
-ENV REFRESHED_AT 20161202
+MAINTAINER Florian Fuessl <flo@degnet.de>
+ENV REFRESHED_AT 20170102
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
