@@ -24,7 +24,7 @@ RUN git clone https://github.com/fflo/sixeleven-abe sixeleven-abe
 
 # build bitcoin-abe, it requires a patch to be run within docker
 WORKDIR /home/sixeleven-abe
-ADD ./sixeleven-abe.abe.py.patch /home/sixeleven-abe/abe.py.patch
+ADD ./sixeleven-abe.py.patch /home/sixeleven-abe/abe.py.patch
 RUN patch -p1 < abe.py.patch
 RUN python setup.py install
 
