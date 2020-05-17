@@ -4,9 +4,9 @@
 # sure you lock down to a specific version, not to `latest`!
 # See https://github.com/phusion/baseimage-docker/blob/master/Changelog.md for
 # a list of version numbers.
-FROM phusion/baseimage:0.9.19
+FROM phusion/baseimage:0.9.22
 MAINTAINER Florian Fuessl <flo@degnet.de>
-ENV REFRESHED_AT 20170102
+ENV REFRESHED_AT 20171029
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]

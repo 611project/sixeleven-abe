@@ -87,6 +87,7 @@ CHAIN_CONFIG = [
     {"chain":"Dash"},
     {"chain":"BlackCoin"},
     {"chain":"Unbreakablecoin"},
+    {"chain":"Californium"},
     #{"chain":"",
     # "code3":"", "address_version":"\x", "magic":""},
     ]
@@ -96,10 +97,9 @@ NULL_PUBKEY_ID = 0
 PUBKEY_ID_NETWORK_FEE = NULL_PUBKEY_ID
 
 # Size of the script and pubkey columns in bytes.
-MAX_SCRIPT = 1000000
-MAX_PUBKEY = 65
-
-NO_CLOB = 'BUG_NO_CLOB'
+MAX_SCRIPT = SqlAbstraction.MAX_SCRIPT
+MAX_PUBKEY = SqlAbstraction.MAX_PUBKEY
+NO_CLOB = SqlAbstraction.NO_CLOB
 
 # XXX This belongs in another module.
 class InvalidBlock(Exception):
@@ -2584,9 +2584,9 @@ store._ddl['txout_approx'],
     def catch_up_rpc(store, dircfg):
         """
         Load new blocks using RPC.  Requires running *coind supporting
-        getblockhash, getblock, and getrawtransaction.  Bitcoind v0.8
-        requires the txindex configuration option.  Requires chain_id
-        in the datadir table.
+        getblockhash, getblock with verbose=false, and optionally
+        getrawmempool/getrawtransaction (to load mempool tx). Requires
+        chain_id in the datadir table.
         """
         chain_id = dircfg['chain_id']
         if chain_id is None:
@@ -2612,6 +2612,15 @@ store._ddl['txout_approx'],
         rpcport     = conf.get("rpcport", chain.datadir_rpcport)
         url = "http://" + rpcuser + ":" + rpcpassword + "@" + rpcconnect \
             + ":" + str(rpcport)
+        ds = BCDataStream.BCDataStream()
+
+        if store.rpc_load_mempool:
+            # Cache tx imported from mempool, so we can avoid querying DB on each pass
+            rows = store.selectall("""
+                SELECT t.tx_hash
+                 FROM unlinked_tx ut
+                 JOIN tx t ON (ut.tx_id = t.tx_id)""")
+            store.mempool_tx = {store.hashout_hex(i[0]) for i in rows}
 
         def rpc(func, *params):
             store.rpclog.info("RPC>> %s %s", func, params)
@@ -2690,15 +2699,16 @@ store._ddl['txout_approx'],
             return (height, next_hash)
 
         def catch_up_mempool(height):
-            # imported tx cache, so we can avoid querying DB on each pass
-            imported_tx = set()
             # Next height check time
             height_chk = time.time() + 1
 
             while store.rpc_load_mempool:
                 # Import the memory pool.
-                for rpc_tx_hash in rpc("getrawmempool"):
-                    if rpc_tx_hash in imported_tx:
+                mempool = rpc("getrawmempool")
+
+                for rpc_tx_hash in mempool:
+                    # Skip any TX imported from previous run
+                    if rpc_tx_hash in store.mempool_tx:
                         continue
 
                     # Break loop if new block found
@@ -2721,9 +2731,12 @@ store._ddl['txout_approx'],
                         tx_id = store.import_tx(tx, False, chain)
                         store.log.info("mempool tx %d", tx_id)
                         store.imported_bytes(tx['size'])
-                    imported_tx.add(rpc_tx_hash)
 
-                store.clean_unlinked_tx(imported_tx)
+                # Only need to reset+save mempool tx cache once at the end
+                store.mempool_tx = set(mempool)
+
+                # Clean all unlinked tx not still in mempool
+                store.clean_unlinked_tx(store.mempool_tx)
                 store.log.info("mempool load completed, starting over...")
                 time.sleep(3)
             return None
@@ -2754,46 +2767,22 @@ store._ddl['txout_approx'],
                 if store.offer_existing_block(hash, chain.id):
                     rpc_hash = get_blockhash(height + 1)
                 else:
-                    rpc_block = rpc("getblock", rpc_hash)
-                    assert rpc_hash == rpc_block['hash']
+                    # get full RPC block with "getblock <hash> False"
+                    ds.write(rpc("getblock", rpc_hash, False).decode('hex'))
+                    block_hash = chain.ds_block_header_hash(ds)
+                    block = chain.ds_parse_block(ds)
+                    assert hash == block_hash
+                    block['hash'] = block_hash
 
-                    prev_hash = \
-                        rpc_block['previousblockhash'].decode('hex')[::-1] \
-                        if 'previousblockhash' in rpc_block \
-                        else chain.genesis_hash_prev
-
-                    block = {
-                        'hash':     hash,
-                        'version':  int(rpc_block['version']),
-                        'hashPrev': prev_hash,
-                        'hashMerkleRoot':
-                            rpc_block['merkleroot'].decode('hex')[::-1],
-                        'nTime':    int(rpc_block['time']),
-                        'nBits':    int(rpc_block['bits'], 16),
-                        'nNonce':   int(rpc_block['nonce']),
-                        'transactions': [],
-                        'size':     int(rpc_block['size']),
-                        'height':   height,
-                        }
-
+                    # XXX Shouldn't be needed since we deserialize a valid block already
                     if chain.block_header_hash(chain.serialize_block_header(
                             block)) != hash:
                         raise InvalidBlock('block hash mismatch')
 
-                    for rpc_tx_hash in rpc_block['tx']:
-                        tx = store.export_tx(tx_hash = str(rpc_tx_hash),
-                                             format = "binary")
-                        if tx is None:
-                            tx = get_tx(rpc_tx_hash)
-                            if tx is None:
-                                store.log.error("RPC service lacks full txindex")
-                                return False
-
-                        block['transactions'].append(tx)
-
                     store.import_block(block, chain = chain)
-                    store.imported_bytes(block['size'])
-                    rpc_hash = rpc_block.get('nextblockhash')
+                    store.imported_bytes(ds.read_cursor)
+                    ds.clear()
+                    rpc_hash = get_blockhash(height + 1)
 
                 height += 1
                 if rpc_hash is None:
@@ -3409,40 +3398,40 @@ store._ddl['txout_approx'],
         # Clean up txin's
         unlinked_txins = store.selectall("""
             SELECT txin_id FROM txin
-            WHERE tx_id = ?""", tx_id)
+            WHERE tx_id = ?""", (tx_id,))
         for txin_id in unlinked_txins:
-            store.sql("DELETE FROM unlinked_txin WHERE txin_id = ?", txin_id)
-        store.sql("DELETE FROM txin WHERE tx_id = ?", tx_id)
+            store.sql("DELETE FROM unlinked_txin WHERE txin_id = ?", (txin_id,))
+        store.sql("DELETE FROM txin WHERE tx_id = ?", (tx_id,))
 
         # Clean up txouts & associated pupkeys ...
         txout_pubkeys = set(store.selectall("""
             SELECT pubkey_id FROM txout
-            WHERE tx_id = ? AND pubkey_id IS NOT NULL""", tx_id))
+            WHERE tx_id = ? AND pubkey_id IS NOT NULL""", (tx_id,)))
         # Also add multisig pubkeys if any
         msig_pubkeys = set()
         for pk_id in txout_pubkeys:
             msig_pubkeys.update(store.selectall("""
                 SELECT pubkey_id FROM multisig_pubkey
-                WHERE multisig_id = ?""", pk_id))
+                WHERE multisig_id = ?""", (pk_id,)))
 
-        store.sql("DELETE FROM txout WHERE tx_id = ?", tx_id)
+        store.sql("DELETE FROM txout WHERE tx_id = ?", (tx_id,))
 
         # Now delete orphan pubkeys... For simplicity merge both sets together
         for pk_id in txout_pubkeys.union(msig_pubkeys):
             (count,) = store.selectrow("""
                 SELECT COUNT(pubkey_id) FROM txout
-                WHERE pubkey_id = ?""", pk_id)
+                WHERE pubkey_id = ?""", (pk_id,))
             if count == 0:
-                store.sql("DELETE FROM multisig_pubkey WHERE multisig_id = ?", pk_id)
+                store.sql("DELETE FROM multisig_pubkey WHERE multisig_id = ?", (pk_id,))
                 (count,) = store.selectrow("""
                     SELECT COUNT(pubkey_id) FROM multisig_pubkey
-                    WHERE pubkey_id = ?""", pk_id)
+                    WHERE pubkey_id = ?""", (pk_id,))
                 if count == 0:
-                    store.sql("DELETE FROM pubkey WHERE pubkey_id = ?", pk_id)
+                    store.sql("DELETE FROM pubkey WHERE pubkey_id = ?", (pk_id,))
 
         # Finally clean up tx itself
-        store.sql("DELETE FROM unlinked_tx WHERE tx_id = ?", tx_id)
-        store.sql("DELETE FROM tx WHERE tx_id = ?", tx_id)
+        store.sql("DELETE FROM unlinked_tx WHERE tx_id = ?", (tx_id,))
+        store.sql("DELETE FROM tx WHERE tx_id = ?", (tx_id,))
 
 
 def new(args):
