@@ -2,7 +2,7 @@
 
 Have you ever wanted to browse the 611 (SixEleven) blockchain? Or perhaps you wanted to have an easy way to deploy docker containers running a blockchain browser?
 
-[sitcoin-abe](http://github.com/611project/sixeleven-abe) is like blockchain.io or blockerexplorer.com but you get to run it for 611 (SixEleven) coin yourself.
+[sixeleven-abe](http://github.com/611project/sixeleven-abe) is like blockchain.io or blockerexplorer.com but you get to run it for 611 (SixEleven) coin yourself.
 
 This is a dockerized image for sixeleven-abe. Use it to browse the 611 (SixEleven) blockchain.
 
