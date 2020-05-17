@@ -2,7 +2,7 @@
 
 Have you ever wanted to browse the 611 (SixEleven) blockchain? Or perhaps you wanted to have an easy way to deploy docker containers running a blockchain browser?
 
-[sitcoin-abe](http://github.com/fflo/sixeleven-abe) is like blockchain.io or blockerexplorer.com but you get to run it for 611 (SixEleven) coin yourself.
+[sitcoin-abe](http://github.com/611project/sixeleven-abe) is like blockchain.io or blockerexplorer.com but you get to run it for 611 (SixEleven) coin yourself.
 
 This is a dockerized image for sixeleven-abe. Use it to browse the 611 (SixEleven) blockchain.
 
@@ -12,7 +12,7 @@ When you have docker running just run the command like this:
 
  ```shell
 $ docker run -d --name abe -P -p 16080:80 \
-    -v <PATH_TO_YOUR_SIXELEVEN_DIR>:/sixeleven fflo/sixeleven-abe
+    -v <PATH_TO_YOUR_SIXELEVEN_DIR>:/sixeleven 611project/sixeleven-abe
 ```
 
 *This image includes `EXPOSE 80`, so we can remap a port (in the example above `49001`) in the docker host to port `80` in the container.*
